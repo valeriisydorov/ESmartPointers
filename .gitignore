@@ -1,0 +1,24 @@
+# Ignore temporary files and directories
+*~
+*.swp
+*.swo
+*.o
+*.out
+*.log
+*.zip
+*.tar.gz
+
+# Ignore CMake build files
+cmake-build-debug/*
+
+# Ignore IDE project files (for CLion)
+.idea/*
+
+# Ignore user-specific settings files (for CLion)
+*.iml
+*.ipr
+*.iws
+*.classpath
+*.project
+
+
