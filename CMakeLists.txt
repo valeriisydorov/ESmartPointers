@@ -3,4 +3,7 @@ project(ESmartPointers)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(ESmartPointers main.cpp)
+add_executable(
+    ESmartPointers main.cpp
+    ESharedPtr/TestESharedPtr.cpp
+)
