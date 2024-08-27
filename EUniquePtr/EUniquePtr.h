@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <utility>
+#include <cassert>
 #include <type_traits>
 #include "DefaultDelete.h"
 
@@ -9,12 +10,23 @@
 template<typename T, typename Deleter = DefaultDelete<T>>
 class EUniquePtr
 {
-    template <typename T1, typename D1, typename T2, typename D2>
-    friend bool operator==(const EUniquePtr<T1, D1>& lhs, const EUniquePtr<T2, D2>& rhs);
-    template <typename T1, typename D1, typename T2, typename D2>
-    friend bool operator==(const EUniquePtr<T1, D1>& lhs, std::nullptr_t) noexcept;
-    template <typename T1, typename D1, typename T2, typename D2>
-    friend bool operator==(std::nullptr_t, const EUniquePtr<T2, D2>& rhs) noexcept;
+    template <typename P1, typename D1, typename P2, typename D2>
+    friend bool operator==(const EUniquePtr<P1, D1>& lhs, const EUniquePtr<P2, D2>& rhs)
+    {
+        return lhs.pointer == rhs.pointer;
+    }
+
+    template <typename P, typename D>
+    friend bool operator==(const EUniquePtr<P, D>& lhs, std::nullptr_t) noexcept
+    {
+        return lhs.pointer == nullptr;
+    }
+
+    template <typename P, typename D>
+    friend bool operator==(std::nullptr_t, const EUniquePtr<P, D>& rhs) noexcept
+    {
+        return nullptr == rhs.pointer;
+    }
 
 public:
     using ElementType = T;
@@ -36,7 +48,7 @@ public:
     explicit operator bool() const noexcept;
     bool isValid() const noexcept;
 
-    typename std::add_lvalue_reference<ElementType> operator*() const noexcept;
+    typename std::add_lvalue_reference<T>::type operator*() const noexcept;
     PointerType operator->() const noexcept;
 
 private:
@@ -106,4 +118,32 @@ void EUniquePtr<T, Deleter>::reset(std::nullptr_t) noexcept
         deleter(pointer);
         pointer = nullptr;
     }
+}
+
+template<typename T, typename Deleter>
+EUniquePtr<T, Deleter>::operator bool() const noexcept
+{
+    return pointer != nullptr;
+}
+
+template<typename T, typename Deleter>
+bool EUniquePtr<T, Deleter>::isValid() const noexcept
+{
+    return *this;
+}
+
+template<typename T, typename Deleter>
+typename std::add_lvalue_reference<T>::type EUniquePtr<T, Deleter>::operator*() const noexcept
+{
+    assert(pointer != nullptr && "Attempt to dereference a null pointer");
+
+    return *pointer;
+}
+
+template<typename T, typename Deleter>
+typename EUniquePtr<T, Deleter>::PointerType EUniquePtr<T, Deleter>::operator->() const noexcept
+{
+    assert(pointer != nullptr && "Attempt to access a member through a null pointer");
+
+    return pointer;
 }
