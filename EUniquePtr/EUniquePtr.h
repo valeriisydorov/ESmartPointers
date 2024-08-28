@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <cstddef>
 #include <utility>
 #include <cassert>
@@ -33,7 +34,11 @@ public:
     using PointerType = ElementType*;
     using DeleterType = Deleter;
 
-    explicit EUniquePtr(PointerType ptr = nullptr, DeleterType del = Deleter()) : pointer(ptr), deleter(del) {}
+    explicit EUniquePtr(PointerType ptr = nullptr, DeleterType del = Deleter())
+        : pointer(ptr)
+        , deleter(del)
+    {
+    }
     EUniquePtr(const EUniquePtr& other) = delete;
     EUniquePtr& operator=(const EUniquePtr& rhs) = delete;
     EUniquePtr(EUniquePtr&& other) noexcept;
@@ -129,7 +134,7 @@ EUniquePtr<T, Deleter>::operator bool() const noexcept
 template<typename T, typename Deleter>
 bool EUniquePtr<T, Deleter>::isValid() const noexcept
 {
-    return *this;
+    return static_cast<bool>(*this);
 }
 
 template<typename T, typename Deleter>
