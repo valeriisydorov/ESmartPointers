@@ -2,9 +2,7 @@
 #include "EUniquePtr.h"
 #include "MakeEUnique.h"
 #include "../DemoResources/DynamicResource.h"
-#include "../DemoResources/DynamicArrayResource.h"
 #include <cassert>
-#include <iostream>
 
 
 void TestEUniquePtr()
