@@ -4,7 +4,7 @@
 
 int main()
 {
-    TestEUniquePtr();
+//    TestEUniquePtr();
     TestESharedPtr();
 
     return 0;

@@ -1,7 +1,7 @@
 #include "TestEUniquePtr.h"
 #include "EUniquePtr.h"
 #include "MakeEUnique.h"
-#include "../DemoResources/DynamicResource.h"
+#include "../TestResources/DynamicResource.h"
 #include <cassert>
 
 

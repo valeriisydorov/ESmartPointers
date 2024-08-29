@@ -7,6 +7,7 @@ add_executable(
     ESmartPointers main.cpp
     ESharedPtr/TestESharedPtr.cpp
     EUniquePtr/TestEUniquePtr.cpp
-    DemoResources/DynamicResource.cpp
-    DemoResources/DynamicArrayResource.cpp
+    CommonElements/ControlBlock.cpp
+    TestResources/DynamicResource.cpp
+    TestResources/DynamicArrayResource.cpp
 )
