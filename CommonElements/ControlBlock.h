@@ -16,6 +16,24 @@ public:
 
     ControlBlock() = delete;
     explicit ControlBlock(ObjectPointerType obj = nullptr, DeleterType del = Deleter(), CountType shared = 1);
+    ControlBlock(const ControlBlock&) = delete;
+    ControlBlock(ControlBlock&& other) noexcept;
+    ControlBlock& operator=(const ControlBlock&) = delete;
+    ControlBlock& operator=(ControlBlock&& other) noexcept;
+    ~ControlBlock();
+
+    ObjectPointerType getObject() const;
+    DeleterType getDeleter() const;
+    CountType getSharedCount() const;
+    CountType getWeakCount() const;
+
+    void incrementShared();
+    void decrementShared();
+    void incrementWeak();
+    void decrementWeak();
+
+    void releaseShared();
+    void releaseWeak();
 
 private:
     ObjectPointerType object;
@@ -33,12 +51,87 @@ ControlBlock<T, Deleter>::ControlBlock(ObjectPointerType obj, DeleterType del, C
     , sharedCount(shared)
     , weakCount(0)
 {
-    if (obj != nullptr)
+    assert(sharedCount >= 0);
+}
+
+template <typename T, typename Deleter>
+typename ControlBlock<T, Deleter>::ObjectPointerType ControlBlock<T, Deleter>::getObject() const
+{
+    return object;
+}
+
+template <typename T, typename Deleter>
+typename ControlBlock<T, Deleter>::DeleterType ControlBlock<T, Deleter>::getDeleter() const
+{
+    return deleter;
+}
+
+template <typename T, typename Deleter>
+typename ControlBlock<T, Deleter>::CountType ControlBlock<T, Deleter>::getSharedCount() const
+{
+    return sharedCount;
+}
+
+template <typename T, typename Deleter>
+typename ControlBlock<T, Deleter>::CountType ControlBlock<T, Deleter>::getWeakCount() const
+{
+    return weakCount;
+}
+
+template <typename T, typename Deleter>
+void ControlBlock<T, Deleter>::incrementShared()
+{
+    ++sharedCount;
+}
+
+template <typename T, typename Deleter>
+void ControlBlock<T, Deleter>::decrementShared()
+{
+    if (sharedCount > 0)
     {
-        assert(sharedCount > 0);
-    }
-    else
-    {
-        assert(sharedCount == 0);
+        --sharedCount;
     }
 }
+
+template <typename T, typename Deleter>
+void ControlBlock<T, Deleter>::incrementWeak()
+{
+    ++weakCount;
+}
+
+template <typename T, typename Deleter>
+void ControlBlock<T, Deleter>::decrementWeak()
+{
+    if (weakCount > 0)
+    {
+        --weakCount;
+    }
+}
+
+template <typename T, typename Deleter>
+void ControlBlock<T, Deleter>::releaseShared()
+{
+    if (--sharedCount == 0)
+    {
+        deleter(object);
+        object = nullptr;
+        releaseWeak();
+    }
+}
+
+template <typename T, typename Deleter>
+void ControlBlock<T, Deleter>::releaseWeak()
+{
+    if (sharedCount == 0 && --weakCount == 0)
+    {
+        delete this;
+    }
+}
+
+
+
+
+
+
+
+
