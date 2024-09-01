@@ -19,7 +19,7 @@ public:
     ControlBlock(const ControlBlock&) = delete;
     ControlBlock(ControlBlock&& other) noexcept;
     ControlBlock& operator=(const ControlBlock&) = delete;
-    ControlBlock& operator=(ControlBlock&& other) noexcept;
+    ControlBlock& operator=(ControlBlock&& rhs) noexcept;
     ~ControlBlock();
 
     ObjectPointerType getObject() const;
@@ -52,6 +52,50 @@ ControlBlock<T, Deleter>::ControlBlock(ObjectPointerType obj, DeleterType del, C
     , weakCount(0)
 {
     assert(sharedCount >= 0);
+}
+
+template <typename T, typename Deleter>
+ControlBlock<T, Deleter>::ControlBlock(ControlBlock&& other) noexcept
+    : object(other.object)
+    , deleter(other.deleter)
+    , sharedCount(other.sharedCount)
+    , weakCount(other.weakCount)
+{
+    other.object = nullptr;
+    other.sharedCount = 0;
+    other.weakCount = 0;
+}
+
+template <typename T, typename Deleter>
+ControlBlock<T, Deleter>& ControlBlock<T, Deleter>::operator=(ControlBlock&& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        deleter(object);
+        object = rhs.object;
+        deleter = rhs.deleter;
+        sharedCount = rhs.sharedCount;
+        weakCount = rhs.weakCount;
+
+        rhs.object = nullptr;
+        rhs.sharedCount = 0;
+        rhs.weakCount = 0;
+    }
+
+    return *this;
+}
+
+template <typename T, typename Deleter>
+ControlBlock<T, Deleter>::~ControlBlock()
+{
+    if (sharedCount > 0)
+    {
+        releaseShared();
+    }
+    if (weakCount > 0)
+    {
+        releaseWeak();
+    }
 }
 
 template <typename T, typename Deleter>
