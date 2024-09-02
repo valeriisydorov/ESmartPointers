@@ -5,3 +5,8 @@
 #include "../CommonElements/ControlBlock.h"
 
 
+template <typename T>
+class ESharedPtr
+{
+
+};
