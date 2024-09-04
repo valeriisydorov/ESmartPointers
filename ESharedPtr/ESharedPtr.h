@@ -26,9 +26,20 @@ public:
     using ControlBlockPointerType = ControlBlock<ElementType>*;
 //    using WeakPointerType = EWeakPtr<ElementType>;
 
-    constexpr ESharedPtr() noexcept;
-    constexpr ESharedPtr(std::nullptr_t) noexcept;
-    explicit ESharedPtr(ControlBlockPointerType ctrl);
+    constexpr ESharedPtr() noexcept
+        : control(nullptr)
+        , pointer(nullptr)
+    {
+    }
+    constexpr ESharedPtr(std::nullptr_t) noexcept
+        : ESharedPtr()
+    {
+    }
+    explicit ESharedPtr(ControlBlockPointerType ctrl)
+        : control(ctrl)
+        , pointer(ctrl ? ctrl->getObject() : nullptr)
+    {
+    }
     ESharedPtr(const ESharedPtr& other);
     ESharedPtr(ESharedPtr&& other) noexcept;
 
@@ -62,3 +73,16 @@ private:
     PointerType pointer;
 
 };
+
+
+template<typename T>
+ESharedPtr<T>::operator bool() const noexcept
+{
+    return pointer != nullptr;
+}
+
+template<typename T>
+bool ESharedPtr<T>::isValid() const noexcept
+{
+    return operator bool();
+}
