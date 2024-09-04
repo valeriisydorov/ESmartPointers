@@ -134,7 +134,7 @@ EUniquePtr<T, Deleter>::operator bool() const noexcept
 template<typename T, typename Deleter>
 bool EUniquePtr<T, Deleter>::isValid() const noexcept
 {
-    return static_cast<bool>(*this);
+    return operator bool();
 }
 
 template<typename T, typename Deleter>
