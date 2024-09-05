@@ -20,6 +20,12 @@ class ESharedPtr
     template <typename P>
     friend bool operator==(std::nullptr_t, const ESharedPtr<P>& rhs) noexcept;
 
+    template<typename U, typename... Args>
+    friend ESharedPtr<U> makeEShared(Args&&... args);
+
+    template <typename U>
+    friend ESharedPtr<U[]> makeEShared(std::size_t size);
+
 public:
     using ElementType = T;
     using PointerType = ElementType*;
@@ -27,17 +33,7 @@ public:
 //    using WeakPointerType = EWeakPtr<ElementType>;
 
     constexpr ESharedPtr() noexcept
-        : control(nullptr)
-        , pointer(nullptr)
-    {
-    }
-    constexpr ESharedPtr(std::nullptr_t) noexcept
-        : ESharedPtr()
-    {
-    }
-    explicit ESharedPtr(ControlBlockPointerType ctrl)
-        : control(ctrl)
-        , pointer(ctrl ? ctrl->getObject() : nullptr)
+        : controlBlock(nullptr)
     {
     }
     ESharedPtr(const ESharedPtr& other);
@@ -69,20 +65,41 @@ public:
     PointerType operator->() const noexcept;
 
 private:
-    ControlBlockPointerType control;
-    PointerType pointer;
+    ControlBlockPointerType controlBlock;
 
+    explicit ESharedPtr(ControlBlockPointerType control)
+        : controlBlock(control)
+    {
+    }
 };
 
 
 template<typename T>
 ESharedPtr<T>::operator bool() const noexcept
 {
-    return pointer != nullptr;
+    return controlBlock->getObject() != nullptr;
 }
 
 template<typename T>
 bool ESharedPtr<T>::isValid() const noexcept
 {
     return operator bool();
+}
+
+template<typename T>
+typename ESharedPtr<T>::ElementType& ESharedPtr<T>::operator*() const noexcept
+{
+    assert(controlBlock != nullptr && controlBlock->getObject() != nullptr && \
+        "ESharedPtr: Attempt to dereference a null pointer");
+
+    return *(controlBlock->getObject());
+}
+
+template<typename T>
+typename ESharedPtr<T>::PointerType ESharedPtr<T>::operator->() const noexcept
+{
+    assert(controlBlock != nullptr && controlBlock->getObject() != nullptr && \
+        "ESharedPtr: Attempt to dereference a null pointer");
+
+    return controlBlock->getObject();
 }

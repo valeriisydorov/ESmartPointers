@@ -140,7 +140,7 @@ bool EUniquePtr<T, Deleter>::isValid() const noexcept
 template<typename T, typename Deleter>
 typename std::add_lvalue_reference<T>::type EUniquePtr<T, Deleter>::operator*() const noexcept
 {
-    assert(pointer != nullptr && "Attempt to dereference a null pointer");
+    assert(pointer != nullptr && "EUniquePtr: Attempt to dereference a null pointer");
 
     return *pointer;
 }
@@ -148,7 +148,7 @@ typename std::add_lvalue_reference<T>::type EUniquePtr<T, Deleter>::operator*() 
 template<typename T, typename Deleter>
 typename EUniquePtr<T, Deleter>::PointerType EUniquePtr<T, Deleter>::operator->() const noexcept
 {
-    assert(pointer != nullptr && "Attempt to access a member through a null pointer");
+    assert(pointer != nullptr && "EUniquePtr: Attempt to dereference a null pointer");
 
     return pointer;
 }
