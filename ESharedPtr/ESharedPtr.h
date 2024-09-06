@@ -71,8 +71,49 @@ private:
         : controlBlock(control)
     {
     }
+    void checkControlBlockAndRelease();
 };
 
+
+template<typename T>
+void ESharedPtr<T>::reset() noexcept
+{
+    checkControlBlockAndRelease();
+
+    controlBlock = nullptr;
+}
+
+template<typename T>
+template<typename Y>
+void ESharedPtr<T>::reset(Y* ptr)
+{
+    checkControlBlockAndRelease();
+
+    if (ptr == nullptr)
+    {
+        controlBlock = nullptr;
+    }
+    else
+    {
+        controlBlock = new ControlBlock<Y>(ptr, DefaultDelete<Y>(), 1);
+    }
+}
+
+template<typename T>
+template<typename Y, typename Deleter>
+void ESharedPtr<T>::reset(Y* ptr, Deleter del)
+{
+    checkControlBlockAndRelease();
+
+    if (ptr == nullptr)
+    {
+        controlBlock = nullptr;
+    }
+    else
+    {
+        controlBlock = new ControlBlock<Y, Deleter>(ptr, del, 1);
+    }
+}
 
 template<typename T>
 ESharedPtr<T>::operator bool() const noexcept
@@ -102,4 +143,13 @@ typename ESharedPtr<T>::PointerType ESharedPtr<T>::operator->() const noexcept
         "ESharedPtr: Attempt to dereference a null pointer");
 
     return controlBlock->getObject();
+}
+
+template<typename T>
+void ESharedPtr<T>::checkControlBlockAndRelease()
+{
+    if (controlBlock != nullptr)
+    {
+        controlBlock->releaseShared();
+    }
 }
