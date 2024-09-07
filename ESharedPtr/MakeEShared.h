@@ -14,11 +14,29 @@ ESharedPtr<T> makeEShared(Args&&... args)
     return ESharedPtr<T>(controlBlock);
 }
 
+template<typename T, typename Deleter, typename... Args>
+ESharedPtr<T> makeEShared(Deleter del, Args&&... args)
+{
+    T* object = new T(std::forward<Args>(args)...);
+    ControlBlock<T>* controlBlock = new ControlBlock<T>(object, del, 1);
+
+    return ESharedPtr<T>(controlBlock);
+}
+
 template <typename T>
 ESharedPtr<T[]> makeEShared(std::size_t size)
 {
     T* array = new T[size];
     ControlBlock<T[]>* controlBlock = new ControlBlock<T[]>(array, DefaultDelete<T[]>(), 1);
+
+    return ESharedPtr<T[]>(controlBlock);
+}
+
+template <typename T, typename Deleter>
+ESharedPtr<T[]> makeEShared(std::size_t size, Deleter del)
+{
+    T* array = new T[size];
+    ControlBlock<T[]>* controlBlock = new ControlBlock<T[]>(array, del, 1);
 
     return ESharedPtr<T[]>(controlBlock);
 }

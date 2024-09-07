@@ -12,19 +12,34 @@ template <typename T>
 class ESharedPtr
 {
     template <typename P>
-    friend bool operator==(const ESharedPtr<P>& lhs, const ESharedPtr<P>& rhs) noexcept;
+    friend bool operator==(const ESharedPtr<P>& lhs, const ESharedPtr<P>& rhs) noexcept
+    {
+        return lhs.controlBlock == rhs.controlBlock;
+    }
 
     template <typename P>
-    friend bool operator==(const ESharedPtr<P>& lhs, std::nullptr_t) noexcept;
+    friend bool operator==(const ESharedPtr<P>& lhs, std::nullptr_t) noexcept
+    {
+        return lhs.controlBlock == nullptr;
+    }
 
     template <typename P>
-    friend bool operator==(std::nullptr_t, const ESharedPtr<P>& rhs) noexcept;
+    friend bool operator==(std::nullptr_t, const ESharedPtr<P>& rhs) noexcept
+    {
+        return nullptr == rhs.controlBlock;
+    }
 
     template<typename U, typename... Args>
     friend ESharedPtr<U> makeEShared(Args&&... args);
 
+    template<typename U, typename Deleter, typename... Args>
+    friend ESharedPtr<U> makeEShared(Deleter del, Args&&... args);
+
     template <typename U>
     friend ESharedPtr<U[]> makeEShared(std::size_t size);
+
+    template <typename U, typename Deleter>
+    friend ESharedPtr<U[]> makeEShared(std::size_t size, Deleter del);
 
 public:
     using ElementType = T;
@@ -38,9 +53,6 @@ public:
     }
     ESharedPtr(const ESharedPtr& other);
     ESharedPtr(ESharedPtr&& other) noexcept;
-
-    template <typename Deleter>
-    ESharedPtr(PointerType ptr, Deleter del);
 
 //    template <typename Y>
 //    explicit ESharedPtr(const EWeakPtr<Y>& other);
@@ -118,7 +130,7 @@ void ESharedPtr<T>::reset(Y* ptr, Deleter del)
 template<typename T>
 ESharedPtr<T>::operator bool() const noexcept
 {
-    return controlBlock->getObject() != nullptr;
+    return controlBlock != nullptr;
 }
 
 template<typename T>
