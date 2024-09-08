@@ -29,6 +29,9 @@ class EUniquePtr
         return nullptr == rhs.pointer;
     }
 
+    template<typename U>
+    friend class ESharedPtr;
+
 public:
     using ElementType = T;
     using PointerType = ElementType*;
@@ -60,6 +63,7 @@ private:
     PointerType pointer;
     DeleterType deleter;
 
+    DeleterType getDeleter() const;
 };
 
 template<typename T, typename Deleter>
@@ -151,4 +155,10 @@ typename EUniquePtr<T, Deleter>::PointerType EUniquePtr<T, Deleter>::operator->(
     assert(pointer != nullptr && "EUniquePtr: Attempt to dereference a null pointer");
 
     return pointer;
+}
+
+template<typename T, typename Deleter>
+typename EUniquePtr<T, Deleter>::DeleterType EUniquePtr<T, Deleter>::getDeleter() const
+{
+    return deleter;
 }
