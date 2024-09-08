@@ -86,6 +86,38 @@ private:
     void checkControlBlockAndRelease();
 };
 
+template <typename T>
+ESharedPtr<T>::ESharedPtr(const ESharedPtr& other)
+{
+    controlBlock = other.controlBlock;
+    if (controlBlock != nullptr)
+    {
+        controlBlock->incrementShared();
+    }
+}
+
+template <typename T>
+ESharedPtr<T>::ESharedPtr(ESharedPtr&& other) noexcept : controlBlock(other.controlBlock)
+{
+    other.controlBlock = nullptr;
+}
+
+template <typename T>
+template <typename Deleter>
+ESharedPtr<T>::ESharedPtr(EUniquePtr<T, Deleter>&& other)
+{
+    PointerType ptr = other.operator->();
+    if (ptr != nullptr)
+    {
+        controlBlock = new ControlBlock<T, Deleter>(ptr, other.getDeleter(), 1);
+
+        other.reset(nullptr);
+    }
+    else
+    {
+        controlBlock = nullptr;
+    }
+}
 
 template<typename T>
 void ESharedPtr<T>::reset() noexcept
