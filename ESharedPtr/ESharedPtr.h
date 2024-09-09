@@ -119,6 +119,43 @@ ESharedPtr<T>::ESharedPtr(EUniquePtr<T, Deleter>&& other)
     }
 }
 
+template <typename T>
+ESharedPtr<T>& ESharedPtr<T>::operator=(const ESharedPtr& rhs)
+{
+    if (this != &rhs)
+    {
+        checkControlBlockAndRelease();
+
+        controlBlock = rhs.controlBlock;
+        if (controlBlock != nullptr)
+        {
+            controlBlock->incrementShared();
+        }
+    }
+
+    return *this;
+}
+
+template <typename T>
+ESharedPtr<T>& ESharedPtr<T>::operator=(ESharedPtr&& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        checkControlBlockAndRelease();
+
+        controlBlock = rhs.controlBlock;
+        rhs.controlBlock = nullptr;
+    }
+
+    return *this;
+}
+
+template <typename T>
+ESharedPtr<T>::~ESharedPtr()
+{
+    checkControlBlockAndRelease();
+}
+
 template<typename T>
 void ESharedPtr<T>::reset() noexcept
 {
