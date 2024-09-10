@@ -10,7 +10,7 @@ public:
     DynamicResource(const DynamicResource&) = delete;
     DynamicResource(DynamicResource&& other) noexcept;
     DynamicResource& operator=(const DynamicResource&) = delete;
-    DynamicResource& operator=(DynamicResource&&) noexcept;
+    DynamicResource& operator=(DynamicResource&& rhs) noexcept;
     ~DynamicResource();
 
     void demo();
