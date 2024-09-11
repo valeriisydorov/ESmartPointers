@@ -16,7 +16,6 @@ DynamicResource::DynamicResource(DynamicResource&& other) noexcept
     : data(other.data)
 {
     other.data = nullptr;
-    ++counter;
 
     std::cout << "DynamicResource moved." << std::endl;
 }
