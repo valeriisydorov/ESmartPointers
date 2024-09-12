@@ -14,7 +14,7 @@ ESharedPtr<T> makeEShared(Args&&... args)
     return ESharedPtr<T>(controlBlock);
 }
 
-template<typename T, typename Deleter, typename... Args>
+template<typename T, typename Deleter, typename... Args, typename = std::enable_if_t<std::is_invocable_v<Deleter, T*>>>
 ESharedPtr<T> makeEShared(Deleter del, Args&&... args)
 {
     T* object = new T(std::forward<Args>(args)...);
@@ -32,7 +32,7 @@ ESharedPtr<T[]> makeEShared(std::size_t size)
     return ESharedPtr<T[]>(controlBlock);
 }
 
-template <typename T, typename Deleter>
+template <typename T, typename Deleter, typename = std::enable_if_t<std::is_invocable_v<Deleter, T*>>>
 ESharedPtr<T[]> makeEShared(std::size_t size, Deleter del)
 {
     T* array = new T[size];
