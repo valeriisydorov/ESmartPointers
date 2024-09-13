@@ -79,7 +79,7 @@ EUniquePtr<T, Deleter>& EUniquePtr<T, Deleter>::operator=(EUniquePtr&& rhs) noex
 {
     if (this != &rhs)
     {
-        if (pointer)
+        if (pointer != nullptr)
         {
             deleter(pointer);
         }
@@ -104,7 +104,10 @@ void EUniquePtr<T, Deleter>::reset(PointerType ptr) noexcept
 {
     if (pointer != ptr)
     {
-        deleter(pointer);
+        if (pointer != nullptr)
+        {
+            deleter(pointer);
+        }
         pointer = ptr;
     }
 }
@@ -115,7 +118,10 @@ void EUniquePtr<T, Deleter>::reset(U ptr) noexcept
 {
     static_assert(std::is_convertible<U*, T*>::value, "Invalid pointer type: U* cannot be converted to T*.");
 
-    deleter(pointer);
+    if (pointer != nullptr)
+    {
+        deleter(pointer);
+    }
     pointer = ptr;
 }
 

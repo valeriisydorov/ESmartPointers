@@ -71,7 +71,11 @@ ControlBlock<T, Deleter>& ControlBlock<T, Deleter>::operator=(ControlBlock&& rhs
 {
     if (this != &rhs)
     {
-        deleter(object);
+        if (object != nullptr)
+        {
+            deleter(object);
+        }
+
         object = rhs.object;
         deleter = rhs.deleter;
         sharedCount = rhs.sharedCount;
@@ -157,8 +161,11 @@ void ControlBlock<T, Deleter>::releaseShared()
 {
     if (--sharedCount == 0)
     {
-        deleter(object);
-        object = nullptr;
+        if (object != nullptr)
+        {
+            deleter(object);
+            object = nullptr;
+        }
         releaseWeak();
     }
 }

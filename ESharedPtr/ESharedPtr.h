@@ -111,7 +111,7 @@ ESharedPtr<T>::ESharedPtr(EUniquePtr<T, Deleter>&& other)
     {
         controlBlock = new ControlBlock<T, Deleter>(ptr, other.getDeleter(), 1);
 
-        other.reset(nullptr);
+        other.pointer = nullptr;
     }
     else
     {

@@ -31,8 +31,6 @@ DynamicArrayResource::DynamicArrayResource(DynamicArrayResource&& other) noexcep
 {
     other.value = nullptr;
     other.length = 0;
-
-    std::cout << "DynamicArrayResource moved." << std::endl;
 }
 
 DynamicArrayResource& DynamicArrayResource::operator=(DynamicArrayResource&& rhs) noexcept
@@ -46,8 +44,6 @@ DynamicArrayResource& DynamicArrayResource::operator=(DynamicArrayResource&& rhs
 
         rhs.value = nullptr;
         rhs.length = 0;
-
-        std::cout << "DynamicArrayResource move-assigned." << std::endl;
     }
 
     return *this;

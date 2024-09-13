@@ -16,8 +16,6 @@ DynamicResource::DynamicResource(DynamicResource&& other) noexcept
     : data(other.data)
 {
     other.data = nullptr;
-
-    std::cout << "DynamicResource moved." << std::endl;
 }
 
 DynamicResource& DynamicResource::operator=(DynamicResource&& rhs) noexcept
@@ -27,8 +25,6 @@ DynamicResource& DynamicResource::operator=(DynamicResource&& rhs) noexcept
         delete data;
         data = rhs.data;
         rhs.data = nullptr;
-
-        std::cout << "DynamicResource move-assigned." << std::endl;
     }
 
     return *this;
