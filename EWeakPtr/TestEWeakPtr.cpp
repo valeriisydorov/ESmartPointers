@@ -1,4 +1,5 @@
 #include "TestEWeakPtr.h"
+#include "EWeakPtr.h"
 #include <cassert>
 
 

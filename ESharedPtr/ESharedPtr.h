@@ -5,8 +5,10 @@
 #include "../CommonElements/DefaultDelete.h"
 #include "../CommonElements/ControlBlock.h"
 #include "../EUniquePtr/EUniquePtr.h"
-//  #include "../EWeakPtr/EWeakPtr.h"
 
+
+template <typename T>
+class EWeakPtr;
 
 template <typename T>
 class ESharedPtr
@@ -45,7 +47,7 @@ public:
     using ElementType = T;
     using PointerType = ElementType*;
     using ControlBlockPointerType = ControlBlock<ElementType>*;
-//    using WeakPointerType = EWeakPtr<ElementType>;
+    using EWeakPointerType = EWeakPtr<ElementType>;
 
     constexpr ESharedPtr() noexcept
         : controlBlock(nullptr)
@@ -54,8 +56,8 @@ public:
     ESharedPtr(const ESharedPtr& other);
     ESharedPtr(ESharedPtr&& other) noexcept;
 
-//    template <typename Y>
-//    explicit ESharedPtr(const EWeakPtr<Y>& other);
+    template <typename Y>
+    explicit ESharedPtr(const EWeakPtr<Y>& other);
     template <typename Deleter>
     ESharedPtr(EUniquePtr<T, Deleter>&& other);
 
@@ -68,7 +70,7 @@ public:
     void reset(Y* ptr);
     template<typename Y, typename Deleter>
     void reset(Y* ptr, Deleter del);
-//    WeakPointerType toWeak() const;
+    EWeakPointerType toWeak() const;
 
     explicit operator bool() const noexcept;
     bool isValid() const noexcept;
