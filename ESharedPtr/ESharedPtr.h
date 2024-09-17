@@ -111,7 +111,7 @@ ESharedPtr<T>::ESharedPtr(EUniquePtr<T, Deleter>&& other)
     PointerType ptr = other.operator->();
     if (ptr != nullptr)
     {
-        controlBlock = new ControlBlock<T, Deleter>(ptr, other.getDeleter(), 1);
+        controlBlock = new ControlBlock<T, Deleter>(ptr, other.getDeleter());
 
         other.pointer = nullptr;
     }
@@ -178,7 +178,7 @@ void ESharedPtr<T>::reset(Y* ptr)
     }
     else
     {
-        controlBlock = new ControlBlock<Y>(ptr, DefaultDelete<Y>(), 1);
+        controlBlock = new ControlBlock<Y>(ptr, DefaultDelete<Y>());
     }
 }
 
@@ -194,7 +194,7 @@ void ESharedPtr<T>::reset(Y* ptr, Deleter del)
     }
     else
     {
-        controlBlock = new ControlBlock<Y, Deleter>(ptr, del, 1);
+        controlBlock = new ControlBlock<Y, Deleter>(ptr, del);
     }
 }
 
