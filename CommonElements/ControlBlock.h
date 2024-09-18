@@ -1,8 +1,10 @@
 #pragma once
 
+
 #include <cstddef>
 #include <cassert>
 #include "DefaultDelete.h"
+#include "../EUniquePtr/EUniquePtr.h"
 
 
 template <typename T, typename Deleter = DefaultDelete<T>>
@@ -13,17 +15,17 @@ public:
     using ObjectPointerType = ObjectType*;
     using DeleterType = Deleter;
     using CountType = std::size_t;
+    using ObjectUniquePointerType = EUniquePtr<ObjectType, DeleterType>;
 
     ControlBlock() = delete;
-    explicit ControlBlock(ObjectPointerType obj = nullptr, DeleterType del = Deleter(), CountType shared = 1);
+    explicit ControlBlock(ObjectUniquePointerType obj);
     ControlBlock(const ControlBlock&) = delete;
-    ControlBlock(ControlBlock&& other) noexcept;
+    ControlBlock(ControlBlock&& other) noexcept = delete;
     ControlBlock& operator=(const ControlBlock&) = delete;
-    ControlBlock& operator=(ControlBlock&& rhs) noexcept;
+    ControlBlock& operator=(ControlBlock&& rhs) noexcept = delete;
     ~ControlBlock();
 
     ObjectPointerType getObject() const;
-    DeleterType getDeleter() const;
     CountType getSharedCount() const;
     CountType getWeakCount() const;
 
@@ -36,8 +38,7 @@ public:
     void releaseWeak();
 
 private:
-    ObjectPointerType object;
-    DeleterType deleter;
+    ObjectUniquePointerType object;
     CountType sharedCount;
     CountType weakCount;
 
@@ -45,48 +46,12 @@ private:
 
 
 template <typename T, typename Deleter>
-ControlBlock<T, Deleter>::ControlBlock(ObjectPointerType obj, DeleterType del, CountType shared)
-    : object(obj)
-    , deleter(del)
-    , sharedCount(shared)
+ControlBlock<T, Deleter>::ControlBlock(ObjectUniquePointerType obj)
+    : object(std::move(obj))
+    , sharedCount(1)
     , weakCount(0)
 {
-    assert(sharedCount >= 0);
-}
-
-template <typename T, typename Deleter>
-ControlBlock<T, Deleter>::ControlBlock(ControlBlock&& other) noexcept
-    : object(other.object)
-    , deleter(other.deleter)
-    , sharedCount(other.sharedCount)
-    , weakCount(other.weakCount)
-{
-    other.object = nullptr;
-    other.sharedCount = 0;
-    other.weakCount = 0;
-}
-
-template <typename T, typename Deleter>
-ControlBlock<T, Deleter>& ControlBlock<T, Deleter>::operator=(ControlBlock&& rhs) noexcept
-{
-    if (this != &rhs)
-    {
-        if (object != nullptr)
-        {
-            deleter(object);
-        }
-
-        object = rhs.object;
-        deleter = rhs.deleter;
-        sharedCount = rhs.sharedCount;
-        weakCount = rhs.weakCount;
-
-        rhs.object = nullptr;
-        rhs.sharedCount = 0;
-        rhs.weakCount = 0;
-    }
-
-    return *this;
+    assert(object != nullptr && "ControlBlock: Object should not be null");
 }
 
 template <typename T, typename Deleter>
@@ -105,13 +70,7 @@ ControlBlock<T, Deleter>::~ControlBlock()
 template <typename T, typename Deleter>
 typename ControlBlock<T, Deleter>::ObjectPointerType ControlBlock<T, Deleter>::getObject() const
 {
-    return object;
-}
-
-template <typename T, typename Deleter>
-typename ControlBlock<T, Deleter>::DeleterType ControlBlock<T, Deleter>::getDeleter() const
-{
-    return deleter;
+    return object.operator->();
 }
 
 template <typename T, typename Deleter>
@@ -161,11 +120,7 @@ void ControlBlock<T, Deleter>::releaseShared()
 {
     if (--sharedCount == 0)
     {
-        if (object != nullptr)
-        {
-            deleter(object);
-            object = nullptr;
-        }
+        object.reset(nullptr);
         releaseWeak();
     }
 }

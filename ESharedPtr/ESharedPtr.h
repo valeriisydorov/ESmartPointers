@@ -31,6 +31,24 @@ class ESharedPtr
         return nullptr == rhs.controlBlock;
     }
 
+    template <typename P>
+    friend bool operator!=(const ESharedPtr<P>& lhs, const ESharedPtr<P>& rhs) noexcept
+    {
+        return !(lhs.controlBlock == rhs.controlBlock);
+    }
+
+    template <typename P>
+    friend bool operator!=(const ESharedPtr<P>& lhs, std::nullptr_t) noexcept
+    {
+        return !(lhs.controlBlock == nullptr);
+    }
+
+    template <typename P>
+    friend bool operator!=(std::nullptr_t, const ESharedPtr<P>& rhs) noexcept
+    {
+        return !(nullptr == rhs.controlBlock);
+    }
+
     template<typename U, typename... Args>
     friend ESharedPtr<U> makeEShared(Args&&... args);
 
@@ -107,11 +125,11 @@ ESharedPtr<T>::ESharedPtr(ESharedPtr&& other) noexcept : controlBlock(other.cont
 template <typename T>
 template <typename Deleter>
 ESharedPtr<T>::ESharedPtr(EUniquePtr<T, Deleter>&& other)
+    : controlBlock(nullptr)
 {
-    PointerType ptr = other.operator->();
-    if (ptr != nullptr)
+    if (other.operator->() != nullptr)
     {
-        controlBlock = new ControlBlock<T, Deleter>(ptr, other.getDeleter());
+        controlBlock = new ControlBlock<T, Deleter>(std::move(other));
 
         other.pointer = nullptr;
     }
@@ -178,7 +196,10 @@ void ESharedPtr<T>::reset(Y* ptr)
     }
     else
     {
-        controlBlock = new ControlBlock<Y>(ptr, DefaultDelete<Y>());
+        static_assert(std::is_convertible<Y*, T*>::value, "Type Y* must be convertible to T*");
+
+        EUniquePtr<T, DefaultDelete<Y>> uniquePtr(static_cast<T*>(ptr), DefaultDelete<Y>());
+        controlBlock = new ControlBlock<T, DefaultDelete<Y>>(std::move(uniquePtr));
     }
 }
 
@@ -194,7 +215,10 @@ void ESharedPtr<T>::reset(Y* ptr, Deleter del)
     }
     else
     {
-        controlBlock = new ControlBlock<Y, Deleter>(ptr, del);
+        static_assert(std::is_convertible<Y*, T*>::value, "Type Y* must be convertible to T*");
+
+        EUniquePtr<T, Deleter> uniquePtr(static_cast<T*>(ptr), del);
+        controlBlock = new ControlBlock<Y, Deleter>(std::move(uniquePtr));
     }
 }
 
