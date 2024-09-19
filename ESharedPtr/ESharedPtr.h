@@ -225,13 +225,13 @@ void ESharedPtr<T>::reset(Y* ptr, Deleter del)
 template<typename T>
 ESharedPtr<T>::operator bool() const noexcept
 {
-    return controlBlock != nullptr;
+    return isValid();
 }
 
 template<typename T>
 bool ESharedPtr<T>::isValid() const noexcept
 {
-    return operator bool();
+    return controlBlock != nullptr;
 }
 
 template<typename T>
