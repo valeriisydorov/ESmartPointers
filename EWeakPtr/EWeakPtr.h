@@ -28,6 +28,21 @@ class EWeakPtr
     template <typename P>
     friend bool operator==(P* lhs, EWeakPtr<P>& rhs) noexcept;
 
+    template <typename P>
+    friend bool operator!=(const EWeakPtr<P>& lhs, const EWeakPtr<P>& rhs) noexcept;
+    template <typename P>
+    friend bool operator!=(const EWeakPtr<P>& lhs, std::nullptr_t) noexcept;
+    template <typename P>
+    friend bool operator!=(std::nullptr_t, const EWeakPtr<P>& rhs) noexcept;
+    template <typename P>
+    friend bool operator!=(const EWeakPtr<P>& lhs, const ESharedPtr<P>& rhs) noexcept;
+    template <typename P>
+    friend bool operator!=(const ESharedPtr<P>& lhs, EWeakPtr<P>& rhs) noexcept;
+    template <typename P>
+    friend bool operator!=(const EWeakPtr<P>& lhs, P* rhs) noexcept;
+    template <typename P>
+    friend bool operator!=(P* lhs, EWeakPtr<P>& rhs) noexcept;
+
 public:
     using ElementType = T;
     using PointerType = ElementType*;
@@ -64,3 +79,16 @@ private:
     ControlBlockPointerType controlBlock;
 
 };
+
+
+template<typename T>
+EWeakPtr<T>::operator bool() const noexcept
+{
+    return isValid();
+}
+
+template<typename T>
+bool EWeakPtr<T>::isValid() const noexcept
+{
+    return controlBlock != nullptr;
+}

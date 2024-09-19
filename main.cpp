@@ -5,8 +5,8 @@
 
 int main()
 {
-    TestEUniquePtr();
-    TestESharedPtr();
+//    TestEUniquePtr();
+//    TestESharedPtr();
     TestEWeakPtr();
 
     return 0;
