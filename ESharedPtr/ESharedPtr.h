@@ -103,7 +103,7 @@ private:
         : controlBlock(control)
     {
     }
-    void checkControlBlockAndRelease();
+    void release();
 };
 
 template <typename T>
@@ -117,7 +117,8 @@ ESharedPtr<T>::ESharedPtr(const ESharedPtr& other)
 }
 
 template <typename T>
-ESharedPtr<T>::ESharedPtr(ESharedPtr&& other) noexcept : controlBlock(other.controlBlock)
+ESharedPtr<T>::ESharedPtr(ESharedPtr&& other) noexcept
+    : controlBlock(other.controlBlock)
 {
     other.controlBlock = nullptr;
 }
@@ -144,7 +145,7 @@ ESharedPtr<T>& ESharedPtr<T>::operator=(const ESharedPtr& rhs)
 {
     if (this != &rhs)
     {
-        checkControlBlockAndRelease();
+        release();
 
         controlBlock = rhs.controlBlock;
         if (controlBlock != nullptr)
@@ -161,7 +162,7 @@ ESharedPtr<T>& ESharedPtr<T>::operator=(ESharedPtr&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        checkControlBlockAndRelease();
+        release();
 
         controlBlock = rhs.controlBlock;
         rhs.controlBlock = nullptr;
@@ -173,13 +174,13 @@ ESharedPtr<T>& ESharedPtr<T>::operator=(ESharedPtr&& rhs) noexcept
 template <typename T>
 ESharedPtr<T>::~ESharedPtr()
 {
-    checkControlBlockAndRelease();
+    release();
 }
 
 template<typename T>
 void ESharedPtr<T>::reset() noexcept
 {
-    checkControlBlockAndRelease();
+    release();
 
     controlBlock = nullptr;
 }
@@ -188,7 +189,7 @@ template<typename T>
 template<typename Y>
 void ESharedPtr<T>::reset(Y* ptr)
 {
-    checkControlBlockAndRelease();
+    release();
 
     if (ptr == nullptr)
     {
@@ -207,7 +208,7 @@ template<typename T>
 template<typename Y, typename Deleter>
 void ESharedPtr<T>::reset(Y* ptr, Deleter del)
 {
-    checkControlBlockAndRelease();
+    release();
 
     if (ptr == nullptr)
     {
@@ -253,7 +254,7 @@ typename ESharedPtr<T>::PointerType ESharedPtr<T>::operator->() const noexcept
 }
 
 template<typename T>
-void ESharedPtr<T>::checkControlBlockAndRelease()
+void ESharedPtr<T>::release()
 {
     if (controlBlock != nullptr)
     {
