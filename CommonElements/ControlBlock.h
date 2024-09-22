@@ -27,12 +27,9 @@ public:
 
     ObjectPointerType getObject() const;
     CountType getSharedCount() const;
-    CountType getWeakCount() const;
 
     void incrementShared();
-    void decrementShared();
     void incrementWeak();
-    void decrementWeak();
 
     void releaseShared();
     void releaseWeak();
@@ -80,39 +77,15 @@ typename ControlBlock<T, Deleter>::CountType ControlBlock<T, Deleter>::getShared
 }
 
 template <typename T, typename Deleter>
-typename ControlBlock<T, Deleter>::CountType ControlBlock<T, Deleter>::getWeakCount() const
-{
-    return weakCount;
-}
-
-template <typename T, typename Deleter>
 void ControlBlock<T, Deleter>::incrementShared()
 {
     ++sharedCount;
 }
 
 template <typename T, typename Deleter>
-void ControlBlock<T, Deleter>::decrementShared()
-{
-    if (sharedCount > 0)
-    {
-        --sharedCount;
-    }
-}
-
-template <typename T, typename Deleter>
 void ControlBlock<T, Deleter>::incrementWeak()
 {
     ++weakCount;
-}
-
-template <typename T, typename Deleter>
-void ControlBlock<T, Deleter>::decrementWeak()
-{
-    if (weakCount > 0)
-    {
-        --weakCount;
-    }
 }
 
 template <typename T, typename Deleter>
