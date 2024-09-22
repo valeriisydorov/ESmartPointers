@@ -64,6 +64,9 @@ class EWeakPtr
         return !(lhs.controlBlock == rhs.controlBlock);
     }
 
+    template<typename Y>
+    friend class ESharedPtr;
+
 public:
     using ElementType = T;
     using PointerType = ElementType*;
@@ -102,19 +105,20 @@ public:
 private:
     ControlBlockPointerType controlBlock;
 
+    explicit EWeakPtr(ControlBlockPointerType control)
+        : controlBlock(control)
+    {
+    }
     void release();
-
+    template <typename Y>
+    void initialize(ControlBlockPointerType otherControlBlock) noexcept;
 };
 
 
 template <typename T>
 EWeakPtr<T>::EWeakPtr(const EWeakPtr& other) noexcept
 {
-    controlBlock = other.controlBlock;
-    if (controlBlock != nullptr)
-    {
-        controlBlock->incrementWeak();
-    }
+    initialize(other.controlBlock);
 }
 
 template <typename T>
@@ -123,12 +127,16 @@ EWeakPtr<T>::EWeakPtr(const EWeakPtr<Y>& other) noexcept
 {
     static_assert(std::is_convertible<Y*, T*>::value, "Type Y* must be convertible to T*");
 
-    controlBlock = other.controlBlock;
+    initialize(other.controlBlock);
+}
 
-    if (controlBlock != nullptr)
-    {
-        controlBlock->incrementWeak();
-    }
+template <typename T>
+template <typename Y>
+EWeakPtr<T>::EWeakPtr(const ESharedPtr<Y>& other) noexcept
+{
+    static_assert(std::is_convertible<Y*, T*>::value, "Type Y* must be convertible to T*");
+
+    initialize(other.controlBlock);
 }
 
 template <typename T>
@@ -155,12 +163,21 @@ EWeakPtr<T>& EWeakPtr<T>::operator=(const EWeakPtr& rhs) noexcept
     {
         release();
 
-        controlBlock = rhs.controlBlock;
-        if (controlBlock != nullptr)
-        {
-            controlBlock->incrementWeak();
-        }
+        initialize(rhs.controlBlock);
     }
+
+    return *this;
+}
+
+template <typename T>
+template <typename Y>
+EWeakPtr<T>& EWeakPtr<T>::operator=(const ESharedPtr<Y>& rhs) noexcept
+{
+    static_assert(std::is_convertible<Y*, T*>::value, "Type Y* must be convertible to T*");
+
+    release();
+
+    initialize(rhs.controlBlock);
 
     return *this;
 }
@@ -209,11 +226,46 @@ bool EWeakPtr<T>::isValid() const noexcept
 {
     return controlBlock != nullptr;
 }
+
+template <typename T>
+typename EWeakPtr<T>::ESharedPointerType EWeakPtr<T>::lock() const noexcept
+{
+    if (controlBlock != nullptr && controlBlock->getSharedCount() != 0)
+    {
+        controlBlock->incrementShared();
+
+        return ESharedPtr<T>(controlBlock);
+    }
+
+    return ESharedPtr<T>();
+}
+
 template<typename T>
 void EWeakPtr<T>::release()
 {
     if (controlBlock != nullptr)
     {
         controlBlock->releaseWeak();
+        controlBlock = nullptr;
     }
 }
+
+template<typename T>
+template <typename Y>
+void EWeakPtr<T>::initialize(ControlBlockPointerType otherControlBlock) noexcept
+{
+    controlBlock = otherControlBlock;
+
+    if (controlBlock != nullptr)
+    {
+        controlBlock->incrementWeak();
+    }
+}
+
+
+
+
+
+
+
+
