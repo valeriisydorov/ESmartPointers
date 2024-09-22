@@ -61,6 +61,9 @@ class ESharedPtr
     template <typename U, typename Deleter>
     friend ESharedPtr<U[]> makeEShared(std::size_t size, Deleter del);
 
+    template<typename Y>
+    friend class EWeakPtr;
+
 public:
     using ElementType = T;
     using PointerType = ElementType*;
@@ -104,16 +107,22 @@ private:
     {
     }
     void release();
+    void initialize(ControlBlockPointerType otherControlBlock) noexcept;
 };
 
 template <typename T>
 ESharedPtr<T>::ESharedPtr(const ESharedPtr& other)
 {
-    controlBlock = other.controlBlock;
-    if (controlBlock != nullptr)
-    {
-        controlBlock->incrementShared();
-    }
+    initialize(other.controlBlock);
+}
+
+template <typename T>
+template <typename Y>
+ESharedPtr<T>::ESharedPtr(const EWeakPtr<Y>& other)
+{
+    static_assert(std::is_convertible<Y*, T*>::value, "Type Y* must be convertible to T*");
+
+    initialize(other.controlBlock);
 }
 
 template <typename T>
@@ -147,11 +156,7 @@ ESharedPtr<T>& ESharedPtr<T>::operator=(const ESharedPtr& rhs)
     {
         release();
 
-        controlBlock = rhs.controlBlock;
-        if (controlBlock != nullptr)
-        {
-            controlBlock->incrementShared();
-        }
+        initialize(rhs.controlBlock);
     }
 
     return *this;
@@ -224,6 +229,19 @@ void ESharedPtr<T>::reset(Y* ptr, Deleter del)
 }
 
 template<typename T>
+typename ESharedPtr<T>::EWeakPointerType ESharedPtr<T>::toWeak() const
+{
+    if (controlBlock != nullptr)
+    {
+        controlBlock->incrementWeak();
+
+        return EWeakPtr<T>(controlBlock);
+    }
+
+    return EWeakPtr<T>();
+}
+
+template<typename T>
 ESharedPtr<T>::operator bool() const noexcept
 {
     return isValid();
@@ -259,5 +277,16 @@ void ESharedPtr<T>::release()
     if (controlBlock != nullptr)
     {
         controlBlock->releaseShared();
+    }
+}
+
+template<typename T>
+void ESharedPtr<T>::initialize(ControlBlockPointerType otherControlBlock) noexcept
+{
+    controlBlock = otherControlBlock;
+
+    if (controlBlock != nullptr)
+    {
+        controlBlock->incrementShared();
     }
 }

@@ -3,6 +3,7 @@
 #include "MakeEShared.h"
 #include "../EUniquePtr/MakeEUnique.h"
 #include "../TestResources/DynamicArrayResource.h"
+#include "../EWeakPtr/EWeakPtr.h"
 #include <cassert>
 
 
@@ -55,5 +56,16 @@ void TestESharedPtr()
         assert(ptr_5_1.isValid() == false);
         assert(ptr_5_2.isValid() == true);
         ptr_5_2->demo();
+    }
+
+    {
+        // toWeak(), ESharedPtr(const EWeakPtr<Y>& other)
+        ESharedPtr<DynamicArrayResource> ptr_6_1 = makeEShared<DynamicArrayResource>(10, 11);
+        EWeakPtr<DynamicArrayResource> ptr_6_2 = ptr_6_1.toWeak();
+        ESharedPtr<DynamicArrayResource> ptr_6_3(ptr_6_2);
+        assert(ptr_6_1.isValid() == true);
+        assert(ptr_6_2.isValid() == true);
+        assert(ptr_6_3.isValid() == true);
+        ptr_6_3->demo();
     }
 }
