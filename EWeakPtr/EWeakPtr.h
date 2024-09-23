@@ -229,7 +229,7 @@ bool EWeakPtr<T>::isValid() const noexcept
 template <typename T>
 typename EWeakPtr<T>::ESharedPointerType EWeakPtr<T>::lock() const noexcept
 {
-    if (controlBlock != nullptr && controlBlock->getSharedCount() != 0)
+    if (isValid() == true)
     {
         controlBlock->incrementShared();
 
