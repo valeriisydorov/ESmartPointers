@@ -110,7 +110,6 @@ private:
     {
     }
     void release();
-    template <typename Y>
     void initialize(ControlBlockPointerType otherControlBlock) noexcept;
 };
 
@@ -224,7 +223,7 @@ EWeakPtr<T>::operator bool() const noexcept
 template <typename T>
 bool EWeakPtr<T>::isValid() const noexcept
 {
-    return controlBlock != nullptr;
+    return controlBlock != nullptr && controlBlock->getSharedCount() != 0;
 }
 
 template <typename T>
@@ -251,7 +250,6 @@ void EWeakPtr<T>::release()
 }
 
 template<typename T>
-template <typename Y>
 void EWeakPtr<T>::initialize(ControlBlockPointerType otherControlBlock) noexcept
 {
     controlBlock = otherControlBlock;
