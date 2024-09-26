@@ -20,15 +20,15 @@ class ESharedPtr
     }
 
     template <typename P>
-    friend bool operator==(const ESharedPtr<P>& lhs, std::nullptr_t) noexcept
+    friend bool operator==(const ESharedPtr<P>& lhs, std::nullptr_t np) noexcept
     {
-        return lhs.controlBlock == nullptr;
+        return lhs.controlBlock == np;
     }
 
     template <typename P>
-    friend bool operator==(std::nullptr_t, const ESharedPtr<P>& rhs) noexcept
+    friend bool operator==(std::nullptr_t np, const ESharedPtr<P>& rhs) noexcept
     {
-        return nullptr == rhs.controlBlock;
+        return np == rhs.controlBlock;
     }
 
     template <typename P>
@@ -38,15 +38,15 @@ class ESharedPtr
     }
 
     template <typename P>
-    friend bool operator!=(const ESharedPtr<P>& lhs, std::nullptr_t) noexcept
+    friend bool operator!=(const ESharedPtr<P>& lhs, std::nullptr_t np) noexcept
     {
-        return !(lhs.controlBlock == nullptr);
+        return !(lhs.controlBlock == np);
     }
 
     template <typename P>
-    friend bool operator!=(std::nullptr_t, const ESharedPtr<P>& rhs) noexcept
+    friend bool operator!=(std::nullptr_t np, const ESharedPtr<P>& rhs) noexcept
     {
-        return !(nullptr == rhs.controlBlock);
+        return !(np == rhs.controlBlock);
     }
 
     template<typename U, typename... Args>

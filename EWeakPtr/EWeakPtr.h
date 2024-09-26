@@ -3,7 +3,6 @@
 
 #include <cstddef>
 #include "../CommonElements/ControlBlock.h"
-//#include "../ESharedPtr/ESharedPtr.h"
 
 
 template <typename T>
@@ -18,14 +17,14 @@ class EWeakPtr
         return lhs.controlBlock == rhs.controlBlock;
     }
     template <typename P>
-    friend bool operator==(const EWeakPtr<P>& lhs, std::nullptr_t) noexcept
+    friend bool operator==(const EWeakPtr<P>& lhs, std::nullptr_t np) noexcept
     {
-        return lhs.controlBlock == nullptr;
+        return lhs.controlBlock == np;
     }
     template <typename P>
-    friend bool operator==(std::nullptr_t, const EWeakPtr<P>& rhs) noexcept
+    friend bool operator==(std::nullptr_t np, const EWeakPtr<P>& rhs) noexcept
     {
-        return nullptr == rhs.controlBlock;
+        return np == rhs.controlBlock;
     }
     template <typename P>
     friend bool operator==(const EWeakPtr<P>& lhs, const ESharedPtr<P>& rhs) noexcept
@@ -44,14 +43,14 @@ class EWeakPtr
         return !(lhs.controlBlock == rhs.controlBlock);
     }
     template <typename P>
-    friend bool operator!=(const EWeakPtr<P>& lhs, std::nullptr_t) noexcept
+    friend bool operator!=(const EWeakPtr<P>& lhs, std::nullptr_t np) noexcept
     {
-        return !(lhs.controlBlock == nullptr);
+        return !(lhs.controlBlock == np);
     }
     template <typename P>
-    friend bool operator!=(std::nullptr_t, const EWeakPtr<P>& rhs) noexcept
+    friend bool operator!=(std::nullptr_t np, const EWeakPtr<P>& rhs) noexcept
     {
-        return !(nullptr == rhs.controlBlock);
+        return !(np == rhs.controlBlock);
     }
     template <typename P>
     friend bool operator!=(const EWeakPtr<P>& lhs, const ESharedPtr<P>& rhs) noexcept
@@ -69,7 +68,6 @@ class EWeakPtr
 
 public:
     using ElementType = T;
-    using PointerType = ElementType*;
     using ControlBlockPointerType = ControlBlock<ElementType>*;
     using ESharedPointerType = ESharedPtr<ElementType>;
 
@@ -109,7 +107,6 @@ private:
         : controlBlock(control)
     {
     }
-    void release();
     void initialize(ControlBlockPointerType otherControlBlock) noexcept;
 };
 
@@ -160,7 +157,7 @@ EWeakPtr<T>& EWeakPtr<T>::operator=(const EWeakPtr& rhs) noexcept
 {
     if (this != &rhs)
     {
-        release();
+        reset();
 
         initialize(rhs.controlBlock);
     }
@@ -174,7 +171,7 @@ EWeakPtr<T>& EWeakPtr<T>::operator=(const ESharedPtr<Y>& rhs) noexcept
 {
     static_assert(std::is_convertible<Y*, T*>::value, "Type Y* must be convertible to T*");
 
-    release();
+    reset();
 
     initialize(rhs.controlBlock);
 
@@ -189,7 +186,7 @@ EWeakPtr<T>& EWeakPtr<T>::operator=(EWeakPtr<Y>&& rhs) noexcept
     {
         static_assert(std::is_convertible<Y*, T*>::value, "Type Y* must be convertible to T*");
 
-        release();
+        reset();
 
         controlBlock = rhs.controlBlock;
         rhs.controlBlock = nullptr;
@@ -201,7 +198,7 @@ EWeakPtr<T>& EWeakPtr<T>::operator=(EWeakPtr<Y>&& rhs) noexcept
 template <typename T>
 EWeakPtr<T>::~EWeakPtr()
 {
-    release();
+    reset();
 }
 
 template <typename T>
@@ -237,16 +234,6 @@ typename EWeakPtr<T>::ESharedPointerType EWeakPtr<T>::lock() const noexcept
     }
 
     return ESharedPtr<T>();
-}
-
-template<typename T>
-void EWeakPtr<T>::release()
-{
-    if (controlBlock != nullptr)
-    {
-        controlBlock->releaseWeak();
-        controlBlock = nullptr;
-    }
 }
 
 template<typename T>

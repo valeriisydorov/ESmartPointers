@@ -18,15 +18,15 @@ class EUniquePtr
     }
 
     template <typename P, typename D>
-    friend bool operator==(const EUniquePtr<P, D>& lhs, std::nullptr_t) noexcept
+    friend bool operator==(const EUniquePtr<P, D>& lhs, std::nullptr_t np) noexcept
     {
-        return lhs.pointer == nullptr;
+        return lhs.pointer == np;
     }
 
     template <typename P, typename D>
-    friend bool operator==(std::nullptr_t, const EUniquePtr<P, D>& rhs) noexcept
+    friend bool operator==(std::nullptr_t np, const EUniquePtr<P, D>& rhs) noexcept
     {
-        return nullptr == rhs.pointer;
+        return np == rhs.pointer;
     }
 
     template <typename P1, typename D1, typename P2, typename D2>
@@ -36,15 +36,15 @@ class EUniquePtr
     }
 
     template <typename P, typename D>
-    friend bool operator!=(const EUniquePtr<P, D>& lhs, std::nullptr_t) noexcept
+    friend bool operator!=(const EUniquePtr<P, D>& lhs, std::nullptr_t np) noexcept
     {
-        return !(lhs.pointer == nullptr);
+        return !(lhs.pointer == np);
     }
 
     template <typename P, typename D>
-    friend bool operator!=(std::nullptr_t, const EUniquePtr<P, D>& rhs) noexcept
+    friend bool operator!=(std::nullptr_t np, const EUniquePtr<P, D>& rhs) noexcept
     {
-        return !(nullptr == rhs.pointer);
+        return !(np == rhs.pointer);
     }
 
     template<typename U>

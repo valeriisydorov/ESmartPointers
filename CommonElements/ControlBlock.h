@@ -54,14 +54,8 @@ ControlBlock<T, Deleter>::ControlBlock(ObjectUniquePointerType obj)
 template <typename T, typename Deleter>
 ControlBlock<T, Deleter>::~ControlBlock()
 {
-    if (sharedCount > 0)
-    {
-        releaseShared();
-    }
-    if (weakCount > 0)
-    {
-        releaseWeak();
-    }
+    assert(sharedCount == 0 && "sharedCount must be 0 when destroying ControlBlock");
+    assert(weakCount == 0 && "weakCount must be 0 when destroying ControlBlock");
 }
 
 template <typename T, typename Deleter>
